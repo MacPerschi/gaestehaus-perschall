@@ -319,3 +319,104 @@
       #4a8a60
     );
 }
+/* === Metallic-Farben Version 2 === */
+
+.calendar-day {
+  background:
+    linear-gradient(
+      135deg,
+      #f7fbf4 0%,
+      #a9c99e 24%,
+      #e5f0df 45%,
+      #82aa78 67%,
+      #d9e9d3 84%,
+      #9dbf94 100%
+    );
+  border: 1px solid rgba(71,112,65,.38);
+  box-shadow:
+    inset 1px 1px 2px rgba(255,255,255,.95),
+    inset -1px -2px 3px rgba(48,82,43,.16),
+    0 1px 2px rgba(48,82,43,.10);
+}
+
+.calendar-day-occupied {
+  background:
+    linear-gradient(
+      135deg,
+      #ffe2de 0%,
+      #cf625b 23%,
+      #f4aaa4 43%,
+      #a93e39 65%,
+      #ed8d86 82%,
+      #bd4c46 100%
+    );
+  border: 1px solid rgba(133,37,32,.52);
+  color: #591714;
+  box-shadow:
+    inset 1px 1px 2px rgba(255,255,255,.88),
+    inset -1px -2px 3px rgba(104,25,21,.22),
+    0 1px 3px rgba(104,25,21,.13);
+}
+
+.calendar-day-empty {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.calendar-day-today {
+  background:
+    linear-gradient(
+      135deg,
+      #fff6bd 0%,
+      #d5a126 22%,
+      #fff0a0 43%,
+      #a96f08 65%,
+      #ebc855 82%,
+      #bd8614 100%
+    );
+  border: 1px solid #936205;
+  outline: 2px solid #d8a942;
+  outline-offset: 2px;
+  color: #493304;
+  box-shadow:
+    inset 1px 1px 2px rgba(255,255,255,.92),
+    inset -1px -2px 3px rgba(105,69,0,.24),
+    0 2px 5px rgba(105,69,0,.16);
+}
+
+.calendar-key-free {
+  background: linear-gradient(
+    135deg,
+    #f7fbf4,
+    #91b887 35%,
+    #e5f0df 55%,
+    #729b68 100%
+  );
+  border: 1px solid rgba(71,112,65,.45);
+}
+
+.calendar-key-occupied {
+  background: linear-gradient(
+    135deg,
+    #ffe2de,
+    #c95851 35%,
+    #f2a19b 55%,
+    #a83b36 100%
+  );
+  border: 1px solid rgba(133,37,32,.55);
+}
+
+.calendar-key-today {
+  background: linear-gradient(
+    135deg,
+    #fff6bd,
+    #d5a126 32%,
+    #fff0a0 52%,
+    #a96f08 100%
+  );
+  border: 1px solid #936205;
+  box-shadow:
+    inset 1px 1px 1px rgba(255,255,255,.9),
+    0 1px 2px rgba(105,69,0,.15);
+}
