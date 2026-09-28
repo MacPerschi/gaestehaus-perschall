@@ -200,11 +200,23 @@
       <div class="container">
         <p class="section-kicker">Belegungsplan</p>
         <h2>Aktuelle Verfügbarkeit</h2>
-        <p>Der Belegungskalender wird weiterhin über Ferienhausmiete.de eingebunden.</p>
-        <div class="calendar-widget" aria-label="Externer Belegungskalender von Ferienhausmiete.de">
-          <a class="calendar-link" href="https://www.ferienhausmiete.de/41336.htm" rel="noopener">Gästehaus Perschall auf Ferienhausmiete.de öffnen</a>
-          <script src="https://www.ferienhausmiete.de/verwalten/widgets/widgets.js?id=41336&lang=1&months=12&preview=36" async></script>
-          <noscript>Der Kalender benötigt JavaScript. Bitte öffnen Sie den Belegungsplan direkt bei Ferienhausmiete.de.</noscript>
+        <p>Hier sehen Sie die aktuelle Belegung unseres Gästehauses.</p>
+
+        <div class="calendar-widget" aria-label="Belegungskalender Gästehaus Perschall">
+          <div class="calendar-toolbar">
+            <button type="button" class="calendar-nav calendar-prev" aria-label="Vorherige Monate">‹</button>
+            <p class="calendar-status" aria-live="polite">Belegungskalender wird geladen …</p>
+            <button type="button" class="calendar-nav calendar-next" aria-label="Nächste Monate">›</button>
+          </div>
+
+          <div id="occupancy-calendar" class="occupancy-calendar"></div>
+
+          <div class="calendar-legend" aria-label="Legende">
+            <span><span class="calendar-key calendar-key-free"></span> Frei</span>
+            <span><span class="calendar-key calendar-key-occupied"></span> Belegt</span>
+          </div>
+
+          <noscript>Für die Anzeige des Belegungskalenders muss JavaScript aktiviert sein.</noscript>
         </div>
       </div>
     </section>
