@@ -60,7 +60,7 @@ const dialog=document.querySelector('.image-dialog');if(dialog){const dialogImg=
 
   function isOccupied(date) {
     return occupiedRanges.some(
-      range => date >= range.start && date < range.end
+      range => date >= range.start && date <= range.end
     );
   }
 

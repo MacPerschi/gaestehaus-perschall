@@ -170,3 +170,34 @@
     font-size: .82rem;
   }
 }
+/* === Farbgestaltung Belegungskalender === */
+
+.calendar-day {
+  background: rgba(71, 128, 82, 0.12);
+  color: var(--ink);
+}
+
+.calendar-day-empty {
+  background: transparent;
+}
+
+.calendar-day-occupied {
+  background: rgba(181, 69, 62, 0.25);
+  color: #6f2521;
+  font-weight: 800;
+}
+
+.calendar-day-today {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.calendar-key-free {
+  background: rgba(71, 128, 82, 0.12);
+  border: 1px solid rgba(71, 128, 82, 0.28);
+}
+
+.calendar-key-occupied {
+  background: rgba(181, 69, 62, 0.25);
+  border: 1px solid rgba(181, 69, 62, 0.35);
+}
