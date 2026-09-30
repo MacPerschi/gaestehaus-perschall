@@ -420,3 +420,30 @@
     inset 1px 1px 1px rgba(255,255,255,.9),
     0 1px 2px rgba(105,69,0,.15);
 }
+/* === Landwehr-Bildergalerie === */
+
+.landwehr-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.landwehr-gallery img {
+  display: block;
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 18px;
+}
+
+@media (max-width: 750px) {
+  .landwehr-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .landwehr-gallery img {
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+}
