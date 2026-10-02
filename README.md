@@ -27,6 +27,7 @@ Dann öffnen: <http://127.0.0.1:8787/>
 ```text
 .
 ├── index.html
+├── 404.html
 ├── robots.txt
 ├── sitemap.xml
 ├── assets/
@@ -51,3 +52,10 @@ Dann öffnen: <http://127.0.0.1:8787/>
 ## Rechtlicher Hinweis
 
 Vor finaler Veröffentlichung sollten Impressum, Datenschutz, Preise und externe Dienste fachlich/rechtlich geprüft und vom Inhaber freigegeben werden.
+
+## Fehlerseite und Domainwechsel
+
+`404.html` wird von GitHub Pages bei unbekannten Adressen angezeigt. Die absoluten
+Pfade beginnen aktuell mit `/gaestehaus-perschall/`, damit sie auch unter
+verschachtelten Fehleradressen funktionieren. Beim Wechsel auf eine eigene Domain
+müssen CSS-, Favicon- und Startseitenpfade in `404.html` auf `/` umgestellt werden.
