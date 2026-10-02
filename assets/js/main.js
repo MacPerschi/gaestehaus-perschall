@@ -313,3 +313,32 @@ if (dialog) {
         "Der Belegungskalender kann momentan nicht geladen werden.";
     });
 })();
+
+/* OpenStreetMap erst nach Freigabe laden */
+const mapPlaceholder = document.querySelector(".map-placeholder");
+if (mapPlaceholder) {
+  const loadMap = mapPlaceholder.querySelector(".map-load");
+  const unloadMap = mapPlaceholder.querySelector(".map-unload");
+  const mapContent = mapPlaceholder.querySelector("#map-content");
+  const mapStatus = mapPlaceholder.querySelector(".map-status");
+  loadMap.hidden = false;
+  loadMap.addEventListener("click", () => {
+    if (mapContent.querySelector("iframe")) return;
+    const frame = document.createElement("iframe");
+    frame.title = "Karte: Birkenweg 11, 21357 Bardowick";
+    frame.referrerPolicy = "no-referrer";
+    frame.src = mapPlaceholder.dataset.mapSrc;
+    mapContent.replaceChildren(frame);
+    loadMap.hidden = true;
+    unloadMap.hidden = false;
+    mapStatus.textContent = "Die Karte von OpenStreetMap wurde aktiviert.";
+    unloadMap.focus();
+  });
+  unloadMap.addEventListener("click", () => {
+    mapContent.replaceChildren();
+    unloadMap.hidden = true;
+    loadMap.hidden = false;
+    mapStatus.textContent = "Die Karte wurde entfernt.";
+    loadMap.focus();
+  });
+}

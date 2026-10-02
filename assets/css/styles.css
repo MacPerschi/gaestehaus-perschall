@@ -871,3 +871,10 @@ address {
   hyphens: auto;
   overflow-wrap: anywhere;
 }
+
+.map-placeholder {
+  padding: 1.25rem;
+}
+.map-placeholder button[hidden] {
+  display: none;
+}

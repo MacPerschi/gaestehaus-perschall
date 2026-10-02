@@ -47,7 +47,7 @@ Dann öffnen: <http://127.0.0.1:8787/>
 ## Externe Abhängigkeiten
 
 - Belegungskalender: lokale Datei `kalender/belegung.ics` (noch nicht im Repository); die automatische Übertragung vom Hermes-Server steht aus. Ferienhausmiete.de ist als externer Link vorhanden.
-- Kartenansicht: OpenStreetMap Embed
+- Kartenansicht: OpenStreetMap Embed, erst nach Klick auf „Zustimmen und Karte laden“; mit „Karte entfernen“ wieder entfernbar. Die Freigabe wird nicht gespeichert.
 
 ## Rechtlicher Hinweis
 
@@ -59,3 +59,15 @@ Vor finaler Veröffentlichung sollten Impressum, Datenschutz, Preise und externe
 Pfade beginnen aktuell mit `/gaestehaus-perschall/`, damit sie auch unter
 verschachtelten Fehleradressen funktionieren. Beim Wechsel auf eine eigene Domain
 müssen CSS-, Favicon- und Startseitenpfade in `404.html` auf `/` umgestellt werden.
+
+## Datenschutztext vor Freigabe prüfen
+
+Der Text beschreibt die technische Einbindung, ist aber noch keine abschließend
+geprüfte Datenschutzerklärung. Vor Freigabe insbesondere Rechtsgrundlagen,
+Anbieter-/Empfängerangaben, internationale Übermittlungen, Speicherdauern,
+Betroffenenrechte und Beschwerdestelle mit einem aktuellen Generator oder
+fachkundiger Prüfung ergänzen. Das Impressum bleibt unverändert; eine eventuell
+erforderliche Umsatzsteuer-ID muss vom Inhaber bestätigt werden.
+
+Quellen: GitHub General Privacy Statement und OpenStreetMap Foundation Privacy Policy
+(Links im Datenschutzabschnitt, geprüft am 03.10.2026).
