@@ -2,6 +2,8 @@
 
 Modernisierte statische Website für das Gästehaus Perschall in Bardowick.
 
+Für KI-Assistenten gelten die Projektregeln in [AGENTS.md](AGENTS.md).
+
 Die Seite basiert auf der öffentlich ausgelieferten Bestandswebsite und wurde in eine pflegbare, GitHub-Pages-taugliche Struktur überführt.
 
 ## Ziele
