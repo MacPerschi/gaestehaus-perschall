@@ -16,15 +16,35 @@ if (navToggle && nav) {
 /* Hero-Slider */
 const slides = [...document.querySelectorAll(".hero-slider img")];
 let current = 0;
-if (
-  slides.length > 1 &&
-  !matchMedia("(prefers-reduced-motion: reduce)").matches
-) {
-  setInterval(() => {
+const sliderToggle = document.querySelector(".slider-toggle");
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+let sliderTimer = null;
+function pauseSlider() {
+  clearInterval(sliderTimer);
+  sliderTimer = null;
+  if (sliderToggle) sliderToggle.textContent = "Bilderwechsel starten";
+}
+function startSlider() {
+  if (sliderTimer !== null || reducedMotion.matches || slides.length < 2)
+    return;
+  sliderTimer = setInterval(() => {
     slides[current].classList.remove("active");
     current = (current + 1) % slides.length;
     slides[current].classList.add("active");
   }, 4500);
+  if (sliderToggle) sliderToggle.textContent = "Bilderwechsel pausieren";
+}
+if (sliderToggle && slides.length > 1) {
+  sliderToggle.hidden = reducedMotion.matches;
+  sliderToggle.addEventListener("click", () => {
+    if (sliderTimer === null) startSlider();
+    else pauseSlider();
+  });
+  reducedMotion.addEventListener("change", () => {
+    pauseSlider();
+    sliderToggle.hidden = reducedMotion.matches;
+  });
+  startSlider();
 }
 /* Aktiver Navigationslink */
 const sections = [...document.querySelectorAll("main section[id]")];
@@ -50,20 +70,44 @@ if ("IntersectionObserver" in window) {
 const dialog = document.querySelector(".image-dialog");
 if (dialog) {
   const dialogImg = dialog.querySelector("img");
-  document.querySelectorAll(".gallery button").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const img = btn.querySelector("img");
-      dialogImg.src = btn.dataset.full;
-      dialogImg.alt = img?.alt || "Galeriebild Gästehaus Perschall";
+  const galleryButtons = [...document.querySelectorAll(".gallery button")];
+  const dialogStatus = dialog.querySelector(".dialog-status");
+  let imageIndex = 0;
+  let opener = null;
+  function showImage(index) {
+    imageIndex = (index + galleryButtons.length) % galleryButtons.length;
+    const button = galleryButtons[imageIndex];
+    dialogImg.src = button.dataset.full;
+    dialogImg.alt =
+      button.querySelector("img")?.alt || "Galeriebild Gästehaus Perschall";
+    dialogStatus.textContent = `Bild ${imageIndex + 1} von ${galleryButtons.length}`;
+  }
+  galleryButtons.forEach((button, index) => {
+    button.addEventListener("click", () => {
+      opener = button;
+      showImage(index);
       dialog.showModal();
     });
   });
   dialog
+    .querySelector(".dialog-prev")
+    .addEventListener("click", () => showImage(imageIndex - 1));
+  dialog
+    .querySelector(".dialog-next")
+    .addEventListener("click", () => showImage(imageIndex + 1));
+  dialog
     .querySelector(".dialog-close")
     .addEventListener("click", () => dialog.close());
-  dialog.addEventListener("click", (e) => {
-    if (e.target === dialog) dialog.close();
+  dialog.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      showImage(imageIndex + (event.key === "ArrowRight" ? 1 : -1));
+    }
   });
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog.addEventListener("close", () => opener?.focus());
 }
 
 /* === Belegungskalender Gästehaus Perschall === */
@@ -196,6 +240,7 @@ if (dialog) {
         dayElement.classList.add("calendar-day-today");
       }
 
+      dayElement.setAttribute("role", "img");
       dayElement.setAttribute(
         "aria-label",
         `${day}. ${monthNames[month]} ${year}: ${occupied ? "belegt" : "frei"}`,

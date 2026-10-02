@@ -84,6 +84,7 @@
           <a class="button button-primary" href="mailto:urlaub@gaestehaus-perschall.com?subject=Anfrage%20G%C3%A4stehaus%20Perschall&amp;body=Anreise%3A%20%0AAbreise%3A%20%0AErwachsene%3A%20%0AKinder%20%28Alter%29%3A%20%0AHund%3A%20ja%20%2F%20nein%0A%0ANachricht%3A%20%0A">Jetzt unverbindlich anfragen</a>
           <a class="button button-ghost" href="tel:+494131264644">Jetzt anrufen</a>
           <a class="button button-ghost" href="#preise">Preise ansehen</a>
+          <button type="button" class="button button-ghost slider-toggle" hidden>Bilderwechsel pausieren</button>
         </div>
       </div>
     </section>
@@ -153,14 +154,14 @@
         <h2>Toll eingerichtet. Urgemütlich, sauber und modern.</h2>
         <p class="section-intro">Einblicke in Wohnzimmer, Schlafzimmer, Küche, Badezimmer und Terrasse.</p>
         <div class="gallery" aria-label="Bildergalerie Gästehaus Perschall">
-          <button data-full="img/works/1.jpg"><img src="img/works/thumbs/1.jpg" alt="Wohnzimmer im Gästehaus Perschall" loading="lazy"></button>
-          <button data-full="img/works/2.jpg"><img src="img/works/thumbs/2.jpg" alt="Sitzecke im Wohnzimmer" loading="lazy"></button>
-          <button data-full="img/works/3.jpg"><img src="img/works/thumbs/3.jpg" alt="Schlafzimmer im Gästehaus Perschall" loading="lazy"></button>
-          <button data-full="img/works/4.jpg"><img src="img/works/thumbs/4.jpg" alt="Küche im Gästehaus Perschall" loading="lazy"></button>
-          <button data-full="img/works/5.jpg"><img src="img/works/thumbs/5.jpg" alt="Weitere Küchenansicht" loading="lazy"></button>
-          <button data-full="img/works/6.jpg"><img src="img/works/thumbs/6.jpg" alt="Badezimmer im Gästehaus Perschall" loading="lazy"></button>
-          <button data-full="img/works/7.jpg"><img src="img/works/thumbs/7.jpg" alt="Flur und Eingangsbereich" loading="lazy"></button>
-          <button data-full="img/works/8.jpg"><img src="img/works/thumbs/8.jpg" alt="Terrasse des Gästehauses" loading="lazy"></button>
+          <button type="button" data-full="img/works/1.jpg"><img src="img/works/thumbs/1.jpg" alt="Wohnzimmer im Gästehaus Perschall" loading="lazy"></button>
+          <button type="button" data-full="img/works/2.jpg"><img src="img/works/thumbs/2.jpg" alt="Sitzecke im Wohnzimmer" loading="lazy"></button>
+          <button type="button" data-full="img/works/3.jpg"><img src="img/works/thumbs/3.jpg" alt="Schlafzimmer im Gästehaus Perschall" loading="lazy"></button>
+          <button type="button" data-full="img/works/4.jpg"><img src="img/works/thumbs/4.jpg" alt="Küche im Gästehaus Perschall" loading="lazy"></button>
+          <button type="button" data-full="img/works/5.jpg"><img src="img/works/thumbs/5.jpg" alt="Weitere Küchenansicht" loading="lazy"></button>
+          <button type="button" data-full="img/works/6.jpg"><img src="img/works/thumbs/6.jpg" alt="Badezimmer im Gästehaus Perschall" loading="lazy"></button>
+          <button type="button" data-full="img/works/7.jpg"><img src="img/works/thumbs/7.jpg" alt="Flur und Eingangsbereich" loading="lazy"></button>
+          <button type="button" data-full="img/works/8.jpg"><img src="img/works/thumbs/8.jpg" alt="Terrasse des Gästehauses" loading="lazy"></button>
         </div>
       </div>
     </section>
@@ -176,7 +177,7 @@
         <div><strong>Abreise</strong><span>bis 12 Uhr</span></div>
         <div><strong>Zahlung</strong><span>Vorkasse / Barzahlung bei Anreise</span></div>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Preisübersicht">
         <table>
           <caption>Preisübersicht Gästehaus Perschall</caption>
           <thead>
@@ -296,6 +297,11 @@
   <dialog class="image-dialog" aria-label="Galeriebild">
     <button type="button" class="dialog-close" aria-label="Galerie schließen">×</button>
     <img alt="">
+    <div class="dialog-navigation">
+      <button type="button" class="button button-primary dialog-prev" aria-label="Vorheriges Bild">←</button>
+      <span class="dialog-status" role="status" aria-live="polite"></span>
+      <button type="button" class="button button-primary dialog-next" aria-label="Nächstes Bild">→</button>
+    </div>
   </dialog>
   <script src="assets/js/main.js" defer></script>
 </body>

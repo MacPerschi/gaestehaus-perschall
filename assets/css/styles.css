@@ -3,6 +3,7 @@
   --green: #1f5131;
   --green-dark: #173e25;
   --gold: #d8a942;
+  --gold-text: #7a5c14;
   --cream: #faf7ef;
   --muted: #f1f4ee;
   --ink: #172016;
@@ -17,6 +18,7 @@
 }
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 body {
   margin: 0;
@@ -185,6 +187,15 @@ a:hover {
   font-weight: 800;
   color: var(--gold);
   font-size: 0.84rem;
+}
+.section-kicker {
+  color: var(--gold-text);
+}
+.feature-band .section-kicker {
+  color: var(--gold);
+}
+.slider-toggle[hidden] {
+  display: none;
 }
 .hero h1 {
   font-size: clamp(2.8rem, 7vw, 6.6rem);
@@ -402,6 +413,7 @@ summary {
   box-shadow: var(--shadow);
 }
 .contact-card a {
+  overflow-wrap: anywhere;
   color: white;
   font-size: 1.22rem;
   font-weight: 800;
@@ -454,7 +466,8 @@ address {
   background: rgba(0, 0, 0, 0.78);
 }
 .image-dialog img {
-  max-height: 88vh;
+  max-height: calc(88vh - 4rem);
+  margin-inline: auto;
   border-radius: 18px;
 }
 .dialog-close {
@@ -724,7 +737,7 @@ address {
     #bd8614 100%
   );
   border: 1px solid #936205;
-  outline: 2px solid #d8a942;
+  outline: 2px solid var(--gold-text);
   outline-offset: 2px;
   color: #493304;
   box-shadow:
@@ -835,4 +848,26 @@ address {
   font-size: 1.2rem;
   font-weight: 700;
   line-height: 1.5;
+}
+
+.dialog-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem;
+  background: var(--cream);
+  color: var(--ink);
+}
+.dialog-navigation button {
+  cursor: pointer;
+}
+.table-wrap:focus-visible {
+  outline-color: var(--gold-text);
+}
+
+.section h2,
+.feature-band h2 {
+  hyphens: auto;
+  overflow-wrap: anywhere;
 }
