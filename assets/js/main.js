@@ -177,7 +177,7 @@ const dialog=document.querySelector('.image-dialog');if(dialog){const dialogImg=
     renderCalendar();
   });
 
-  fetch('/kalender/belegung.ics', { cache: 'no-store' })
+  fetch('kalender/belegung.ics', { cache: 'no-store' })
     .then(response => {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
