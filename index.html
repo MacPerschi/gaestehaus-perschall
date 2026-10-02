@@ -76,7 +76,7 @@
       <div class="hero-content container">
         <p class="eyebrow">Ferienhaus in Bardowick bei Lüneburg</p>
         <h1 id="hero-title">Alles für den perfekten Urlaub</h1>
-        <p class="hero-lead">Gemütlich, sauber und modern: Das Gästehaus Perschall bietet Erholung, kurze Wege nach Lüneburg und viel Natur direkt vor der Tür.</p>
+        <p class="hero-lead">Gemütlich, sauber und modern: Das Gästehaus Perschall bietet Erholung, kurze Wege nach Lüneburg, Hamburg und in die Lüneburger Heide und viel Natur direkt vor der Tür.</p>
         <div class="hero-actions">
           <a class="button button-primary" href="mailto:urlaub@gaestehaus-perschall.com?subject=Anfrage%20G%C3%A4stehaus%20Perschall&amp;body=Anreise%3A%20%0AAbreise%3A%20%0AErwachsene%3A%20%0AKinder%20%28Alter%29%3A%20%0AHund%3A%20ja%20%2F%20nein%0A%0ANachricht%3A%20%0A">Jetzt unverbindlich anfragen</a>
           <a class="button button-ghost" href="tel:+494131264644">Jetzt anrufen</a>
@@ -89,7 +89,7 @@
       <div>
         <p class="section-kicker">Über uns</p>
         <h2>Willkommen im Gästehaus Perschall</h2>
-        <p>Unser Gästehaus liegt im östlichen Teil von Bardowick. Ein Bäcker befindet sich in unmittelbarer Nähe, ca. 2 Minuten zu Fuß.</p>
+        <p>Unser Gästehaus liegt im östlichen Teil von Bardowick. Sämtliche Einkaufsmöglichkeiten sind im Ort vorhanden.</p>
         <p>Die Innenstadt von Lüneburg ist mit öffentlichen Verkehrsmitteln auf direktem Wege in ca. 10 Minuten zu erreichen. Haltestationen für Bus und Bahn befinden sich in unmittelbarer Nähe.</p>
         <p>Hamburg und die Heide erreichen Sie in ca. 20 Minuten. Eine Stunde ist es bis zur Ostsee. Ferner bieten wir zahlreiche Golfplätze – den ersten erreichen Sie mit dem Auto in ca. 8 Minuten: das Golf-Resort Adendorf.</p>
       </div>
@@ -103,6 +103,14 @@
         <p class="section-kicker">Landwehr und Bardowick</p>
         <h2 id="natur-title">Ein Paradies für Spaziergänger und Hundeliebhaber</h2>
         <p>Spaziergänger und Hundebesitzer kommen bei uns in der Landwehr voll auf ihre Kosten. Weite Wälder und schöne Landschaften laden zu langen Spaziergängen ein.</p>
+
+        <div class="landwehr-gallery" aria-label="Impressionen aus der Landwehr">
+          <img src="img/about-img.jpg" alt="Impression aus der Landwehr bei Bardowick" loading="lazy">
+          <img src="img/about-img.jpg" alt="Impression aus der Landwehr bei Bardowick" loading="lazy">
+          <img src="img/about-img.jpg" alt="Impression aus der Landwehr bei Bardowick" loading="lazy">
+        </div>
+
+        <p class="landwehr-note">Dieses Paradies ist nur 100 Meter von Ihrer Haustür entfernt.</p>
       </div>
     </section>
 
@@ -163,7 +171,7 @@
         <div><strong>Mindestaufenthalt</strong><span>Vermietung ab 2 Nächten</span></div>
         <div><strong>Anreise</strong><span>ab 16 Uhr</span></div>
         <div><strong>Abreise</strong><span>bis 12 Uhr</span></div>
-        <div><strong>Zahlung</strong><span>Vorkasse / Barzahlung</span></div>
+        <div><strong>Zahlung</strong><span>Vorkasse / Barzahlung bei Anreise</span></div>
       </div>
       <div class="table-wrap">
         <table>
@@ -202,11 +210,25 @@
       <div class="container">
         <p class="section-kicker">Belegungsplan</p>
         <h2>Aktuelle Verfügbarkeit</h2>
-        <p>Der Belegungskalender wird weiterhin über Ferienhausmiete.de eingebunden.</p>
-        <div class="calendar-widget" aria-label="Externer Belegungskalender von Ferienhausmiete.de">
-          <a class="calendar-link" href="https://www.ferienhausmiete.de/41336.htm" rel="noopener">Gästehaus Perschall auf Ferienhausmiete.de öffnen</a>
-          <script src="https://www.ferienhausmiete.de/verwalten/widgets/widgets.js?id=41336&lang=1&months=12&preview=36" async></script>
-          <noscript>Der Kalender benötigt JavaScript. Bitte öffnen Sie den Belegungsplan direkt bei Ferienhausmiete.de.</noscript>
+        <p>Hier sehen Sie die aktuelle Belegung unseres Gästehauses.</p>
+
+        <div class="calendar-widget" aria-label="Belegungskalender Gästehaus Perschall">
+          <div class="calendar-toolbar">
+            <button type="button" class="calendar-nav calendar-prev" aria-label="Vorherige Monate">‹</button>
+            <p class="calendar-status" aria-live="polite">Belegungskalender wird geladen …</p>
+            <button type="button" class="calendar-nav calendar-next" aria-label="Nächste Monate">›</button>
+          </div>
+
+          <div id="occupancy-calendar" class="occupancy-calendar"></div>
+
+          <div class="calendar-legend" aria-label="Legende">
+            <span><span class="calendar-key calendar-key-free"></span> Frei</span>
+            <span><span class="calendar-key calendar-key-occupied"></span> Belegt</span>
+        <span><span class="calendar-key calendar-key-today"></span> Heute</span>
+          </div>
+
+          <p><a class="calendar-link" href="https://www.ferienhausmiete.de/41336.htm" rel="noopener">Gästehaus Perschall auf Ferienhausmiete.de öffnen</a></p>
+          <noscript>Für die Anzeige des Belegungskalenders muss JavaScript aktiviert sein.</noscript>
         </div>
         <p>Zeitraum frei? Jetzt anfragen.</p>
         <p><a class="button button-primary" href="mailto:urlaub@gaestehaus-perschall.com?subject=Anfrage%20G%C3%A4stehaus%20Perschall&amp;body=Anreise%3A%20%0AAbreise%3A%20%0AErwachsene%3A%20%0AKinder%20%28Alter%29%3A%20%0AHund%3A%20ja%20%2F%20nein%0A%0ANachricht%3A%20%0A">Jetzt unverbindlich anfragen</a></p>
