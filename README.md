@@ -12,7 +12,7 @@ Die Seite basiert auf der öffentlich ausgelieferten Bestandswebsite und wurde i
 - moderne SEO-Grundlagen: Canonical URL, Open Graph, strukturierte Daten, Sitemap, robots.txt
 - bessere Accessibility: semantische Landmarks, Skip-Link, Fokus-Stile, Alt-Texte, responsive Navigation
 - einfache Vorschau über GitHub Pages
-- Erhalt der bestehenden Inhalte, Bilder und externen Kalender-Einbindung
+- Erhalt der bestehenden Inhalte und Bilder; eigener Belegungskalender
 
 ## Lokale Vorschau
 
@@ -37,12 +37,15 @@ Dann öffnen: <http://127.0.0.1:8787/>
 │   ├── works/
 │   ├── screenshots/
 │   └── parallax/
-└── .github/workflows/pages.yml
+├── scripts/validate_site.py
+└── .github/workflows/
+    ├── pages.yml
+    └── quality.yml
 ```
 
 ## Externe Abhängigkeiten
 
-- Belegungskalender: Ferienhausmiete.de Widget
+- Belegungskalender: lokale Datei `kalender/belegung.ics` (noch nicht im Repository); die automatische Übertragung vom Hermes-Server steht aus. Ferienhausmiete.de ist als externer Link vorhanden.
 - Kartenansicht: OpenStreetMap Embed
 
 ## Rechtlicher Hinweis
