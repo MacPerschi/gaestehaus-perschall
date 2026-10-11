@@ -3,7 +3,7 @@ name: Deploy static site to GitHub Pages
 on:
   push:
     branches: [main]
-  # Belegungskalender stündlich aus dem Branch kalender-daten übernehmen.
+  # Belegungskalender stündlich aktualisieren.
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
@@ -27,12 +27,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Belegungskalender übernehmen
-        # Hermes legt belegung.ics im Branch kalender-daten ab. Veröffentlicht werden
-        # ausschließlich Zeiträume (DTSTART/DTEND), keine Namen oder sonstigen Angaben.
+        # Quelle: belegung.ics im Branch kalender-daten (Hermes), sonst der öffentliche
+        # Kalender von ferienhausmiete.de. Veröffentlicht werden ausschließlich
+        # Zeiträume (DTSTART/DTEND), keine Namen oder sonstigen Angaben.
         run: |
           if git fetch --depth=1 origin kalender-daten 2>/dev/null && git show FETCH_HEAD:belegung.ics > /tmp/belegung-roh.ics 2>/dev/null; then
-            mkdir -p kalender
-            python3 - <<'PY'
+            echo "Quelle: Hermes (Branch kalender-daten)"
+          elif curl -fsS --max-time 30 -o /tmp/belegung-roh.ics https://www.ferienhausmiete.de/41336.ics; then
+            echo "Quelle: ferienhausmiete.de"
+          else
+            echo "Keine Kalenderquelle erreichbar – Kalender bleibt leer."
+            exit 0
+          fi
+          mkdir -p kalender
+          python3 - <<'PY'
           import re
           raw = open("/tmp/belegung-roh.ics", encoding="utf-8").read()
           raw = re.sub(r"\r?\n[ \t]", "", raw)
@@ -47,9 +55,6 @@ jobs:
           open("kalender/belegung.ics", "w", encoding="utf-8", newline="\r\n").write("\n".join(lines) + "\n")
           print(f"{(len(lines) - 4) // 5} Belegungszeiträume übernommen")
           PY
-          else
-            echo "Branch kalender-daten oder belegung.ics nicht vorhanden – Kalender bleibt leer."
-          fi
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
