@@ -46,7 +46,7 @@ Dann öffnen: <http://127.0.0.1:8787/>
 
 ## Externe Abhängigkeiten
 
-- Belegungskalender: lokale Datei `kalender/belegung.ics` (noch nicht im Repository); die automatische Übertragung vom Hermes-Server steht aus. Ferienhausmiete.de ist als externer Link vorhanden.
+- Belegungskalender: Datei `kalender/belegung.ics`, die nicht im Repository liegt. Der Hermes-Server legt `belegung.ics` im Branch `kalender-daten` ab; der Workflow `pages.yml` übernimmt sie bei jeder Veröffentlichung und stündlich, und zwar nur die Zeiträume (DTSTART/DTEND, Bezeichnung „Belegt“). Ohne diesen Branch bleibt der Kalender leer. Ferienhausmiete.de ist als externer Link vorhanden.
 - Kartenansicht: OpenStreetMap Embed, erst nach Klick auf „Zustimmen und Karte laden“; mit „Karte entfernen“ wieder entfernbar. Die Freigabe wird nicht gespeichert.
 
 ## Rechtlicher Hinweis

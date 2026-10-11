@@ -156,11 +156,14 @@ if (dialog) {
 
   function parseOccupancy(ics) {
     const ranges = [];
-    const events = ics.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g) || [];
+    // Gefaltete Zeilen (RFC 5545) zusammenführen.
+    const unfolded = ics.replace(/\r?\n[ \t]/g, "");
+    const events = unfolded.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g) || [];
 
     for (const event of events) {
-      const startMatch = event.match(/DTSTART(?:;VALUE=DATE)?:([0-9]{8})/);
-      const endMatch = event.match(/DTEND(?:;VALUE=DATE)?:([0-9]{8})/);
+      // Erkennt VALUE=DATE, TZID=… und UTC-Zeiten (…Z); die ersten 8 Ziffern sind das Datum.
+      const startMatch = event.match(/DTSTART[^:\r\n]*:([0-9]{8})/);
+      const endMatch = event.match(/DTEND[^:\r\n]*:([0-9]{8})/);
 
       if (!startMatch || !endMatch) continue;
 
@@ -176,8 +179,9 @@ if (dialog) {
   }
 
   function isOccupied(date) {
+    // DTEND ist bei ganztägigen Terminen exklusiv: Der Abreisetag ist wieder frei.
     return occupiedRanges.some(
-      (range) => date >= range.start && date <= range.end,
+      (range) => date >= range.start && date < range.end,
     );
   }
 

@@ -3,6 +3,9 @@ name: Deploy static site to GitHub Pages
 on:
   push:
     branches: [main]
+  # Belegungskalender stündlich aus dem Branch kalender-daten übernehmen.
+  schedule:
+    - cron: '17 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -23,6 +26,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Belegungskalender übernehmen
+        # Hermes legt belegung.ics im Branch kalender-daten ab. Veröffentlicht werden
+        # ausschließlich Zeiträume (DTSTART/DTEND), keine Namen oder sonstigen Angaben.
+        run: |
+          if git fetch --depth=1 origin kalender-daten 2>/dev/null && git show FETCH_HEAD:belegung.ics > /tmp/belegung-roh.ics 2>/dev/null; then
+            mkdir -p kalender
+            python3 - <<'PY'
+          import re
+          raw = open("/tmp/belegung-roh.ics", encoding="utf-8").read()
+          raw = re.sub(r"\r?\n[ \t]", "", raw)
+          lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Gaestehaus Perschall//Belegung//DE"]
+          for event in re.findall(r"BEGIN:VEVENT(.*?)END:VEVENT", raw, re.S):
+              start = re.search(r"^DTSTART[^:\r\n]*:(\d{8})", event, re.M)
+              end = re.search(r"^DTEND[^:\r\n]*:(\d{8})", event, re.M)
+              if start and end:
+                  lines += ["BEGIN:VEVENT", f"DTSTART;VALUE=DATE:{start.group(1)}",
+                            f"DTEND;VALUE=DATE:{end.group(1)}", "SUMMARY:Belegt", "END:VEVENT"]
+          lines.append("END:VCALENDAR")
+          open("kalender/belegung.ics", "w", encoding="utf-8", newline="\r\n").write("\n".join(lines) + "\n")
+          print(f"{(len(lines) - 4) // 5} Belegungszeiträume übernommen")
+          PY
+          else
+            echo "Branch kalender-daten oder belegung.ics nicht vorhanden – Kalender bleibt leer."
+          fi
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
