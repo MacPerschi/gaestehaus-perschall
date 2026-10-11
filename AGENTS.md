@@ -25,6 +25,7 @@ Statische One-Page-Website auf GitHub Pages. Inhaber: Sven Perschall (kein Entwi
 ## Arbeitsablauf und Prüfung
 - Issue vollständig lesen und relevante Dateien sowie Projektregeln prüfen.
 - Für jedes Issue einen eigenen Branch `issue-<nummer>-<kurze-beschreibung>` verwenden.
+  Ein Branch pro Thema; nie direkt auf `main` pushen, immer Branch und Pull Request.
 - Vor jedem Commit: `python3 scripts/validate_site.py` muss
   `All static-site checks passed.` ausgeben; Diff und betroffene Pfade prüfen.
 - Weitere vorhandene Prüfungen ausführen; keine Tests/Lint/Build-Scripts erfinden.
