@@ -27,6 +27,8 @@ Dann öffnen: <http://127.0.0.1:8787/>
 ```text
 .
 ├── index.html
+├── impressum.html
+├── datenschutz.html
 ├── 404.html
 ├── robots.txt
 ├── sitemap.xml
