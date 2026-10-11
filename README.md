@@ -36,7 +36,7 @@ Dann öffnen: <http://127.0.0.1:8787/>
 ├── img/
 │   ├── bgslides/
 │   ├── works/
-│   ├── screenshots/
+│   ├── umgebung/
 │   └── parallax/
 ├── scripts/validate_site.py
 └── .github/workflows/
