@@ -71,3 +71,21 @@ erforderliche Umsatzsteuer-ID muss vom Inhaber bestätigt werden.
 
 Quellen: GitHub General Privacy Statement und OpenStreetMap Foundation Privacy Policy
 (Links im Datenschutzabschnitt, geprüft am 03.10.2026).
+
+## Nach dem Go-live: Google Search Console
+
+Einmalige Schritte für Sven, damit Google die Seite kennt und Probleme meldet:
+
+1. <https://search.google.com/search-console> öffnen, mit dem Google-Konto anmelden
+   und eine Property vom Typ „URL-Präfix“ mit der endgültigen Adresse anlegen
+   (dieselbe Adresse wie `canonical` in `index.html`).
+2. Bestätigungsmethode „HTML-Datei“ wählen. Die angebotene Datei `googleXXXX.html`
+   unverändert ins Hauptverzeichnis des Repositorys legen, per Pull Request
+   veröffentlichen und danach in der Search Console auf „Bestätigen“ klicken.
+3. Unter „Sitemaps“ die Adresse `sitemap.xml` einreichen.
+4. Bei einem späteren Domainwechsel die alte Property behalten und die neue
+   zusätzlich anlegen; die Sitemap der neuen Adresse erneut einreichen.
+
+Optional: In den Bing Webmaster Tools lässt sich die Search-Console-Property
+importieren. Mehr Besucher bringt meist das Google-Unternehmensprofil (Eintrag
+in Google Maps); dort Webseite, Telefonnummer und aktuelle Fotos prüfen.
