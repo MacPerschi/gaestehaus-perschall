@@ -4,7 +4,9 @@
 Statische One-Page-Website auf GitHub Pages. Inhaber: Sven Perschall (kein Entwickler).
 - `index.html` – gesamter Seiteninhalt
 - `assets/css/styles.css`, `assets/js/main.js` – Design und Interaktion
-- `img/` – Bilder; neue oder ersetzte Bilder auf höchstens 300 KB pro Datei begrenzen
+- `img/` – Bilder als JPEG (kein PNG); höchstens 300 KB pro Datei, Thumbnails unter
+  `img/works/thumbs/` höchstens 80 KB, Mobilvarianten `*-800.jpg` höchstens 120 KB.
+  Jedes `<img>` mit `width`/`height`; ungenutzte Bilder löschen.
 - `scripts/validate_site.py` – vorhandenes Prüfskript, läuft auch in CI
 
 ## Grundsätze
