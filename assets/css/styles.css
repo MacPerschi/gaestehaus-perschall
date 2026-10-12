@@ -304,6 +304,16 @@ a:hover {
   width: 100%;
   object-fit: cover;
 }
+.card-wide {
+  grid-column: 1 / -1;
+}
+.card-images {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.card-images img {
+  height: 300px;
+}
 .card-body {
   padding: 1.3rem;
 }
@@ -517,8 +527,12 @@ address {
     padding: 0.8rem 1rem;
   }
   .two-column,
-  .cards {
+  .cards,
+  .card-images {
     grid-template-columns: 1fr;
+  }
+  .card-images img {
+    height: 230px;
   }
   .gallery {
     grid-template-columns: repeat(2, 1fr);
