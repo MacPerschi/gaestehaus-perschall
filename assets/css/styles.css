@@ -438,8 +438,16 @@ address {
 .legal {
   font-size: 0.96rem;
 }
-.legal h2 {
+.legal h1 {
   font-size: 2rem;
+  line-height: 1.08;
+  margin: 0.1rem 0 1rem;
+  color: var(--ink);
+}
+.legal h2 {
+  font-size: 1.17em;
+  line-height: inherit;
+  margin: 1em 0;
 } /* Footer */
 .site-footer {
   background: var(--ink);
