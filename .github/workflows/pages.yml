@@ -1,4 +1,4 @@
-name: Deploy static site to GitHub Pages
+name: Deploy static site to IONOS (and GitHub Pages redirect)
 
 on:
   push:
@@ -55,12 +55,47 @@ jobs:
           open("kalender/belegung.ics", "w", encoding="utf-8", newline="\r\n").write("\n".join(lines) + "\n")
           print(f"{(len(lines) - 4) // 5} Belegungszeiträume übernommen")
           PY
+      - name: Auf IONOS-Webspace hochladen (SFTP)
+        # Zugangsdaten nur als GitHub-Secrets (Settings → Secrets and variables → Actions).
+        # Ohne Secrets bricht der Lauf hier ab, die GitHub-Pages-Seite bleibt dann unverändert.
+        env:
+          SFTP_HOST: ${{ secrets.IONOS_SFTP_HOST }}
+          SFTP_USER: ${{ secrets.IONOS_SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.IONOS_SFTP_PASSWORD }}
+        run: |
+          if [ -z "$SFTP_HOST" ] || [ -z "$SFTP_USER" ] || [ -z "$LFTP_PASSWORD" ]; then
+            echo "::error::IONOS-Secrets fehlen (IONOS_SFTP_HOST, IONOS_SFTP_USER, IONOS_SFTP_PASSWORD)."
+            exit 1
+          fi
+          sudo apt-get -qq update && sudo apt-get -qq install -y lftp >/dev/null
+          mkdir -p ~/.ssh && ssh-keyscan -T 20 "$SFTP_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          lftp --env-password -u "$SFTP_USER" "sftp://$SFTP_HOST" -e "
+            set net:max-retries 3; set net:timeout 30;
+            mirror --reverse --delete --no-perms --verbose=1 \
+              --exclude-glob .git* --exclude ^\.github/ --exclude ^scripts/ \
+              --exclude ^logs/ --exclude-glob *.md \
+              ./ ./;
+            bye"
+      - name: GitHub-Pages-Weiterleitung zur eigenen Domain erzeugen
+        run: |
+          mkdir -p _redirect
+          cat > _redirect/index.html <<'HTML'
+          <!doctype html>
+          <html lang="de"><head><meta charset="utf-8">
+          <title>Gästehaus Perschall</title>
+          <link rel="canonical" href="https://gaestehaus-perschall.com/">
+          <meta name="robots" content="noindex">
+          <meta http-equiv="refresh" content="0; url=https://gaestehaus-perschall.com/">
+          <script>location.replace("https://gaestehaus-perschall.com" + location.pathname.replace(/^\/gaestehaus-perschall/, "") + location.hash);</script>
+          </head><body><p>Die Website ist umgezogen: <a href="https://gaestehaus-perschall.com/">gaestehaus-perschall.com</a></p></body></html>
+          HTML
+          cp _redirect/index.html _redirect/404.html
       - name: Setup Pages
         uses: actions/configure-pages@v6
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: .
+          path: _redirect
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5

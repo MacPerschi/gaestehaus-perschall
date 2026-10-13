@@ -55,12 +55,16 @@ Dann öffnen: <http://127.0.0.1:8787/>
 
 Vor finaler Veröffentlichung sollten Impressum, Datenschutz, Preise und externe Dienste fachlich/rechtlich geprüft und vom Inhaber freigegeben werden.
 
-## Fehlerseite und Domainwechsel
+## Hosting, Fehlerseite und Domain
 
-`404.html` wird von GitHub Pages bei unbekannten Adressen angezeigt. Die absoluten
-Pfade beginnen aktuell mit `/gaestehaus-perschall/`, damit sie auch unter
-verschachtelten Fehleradressen funktionieren. Beim Wechsel auf eine eigene Domain
-müssen CSS-, Favicon- und Startseitenpfade in `404.html` auf `/` umgestellt werden.
+Die Seite liegt seit Oktober 2026 auf dem IONOS-Webspace unter https://gaestehaus-perschall.com/.
+Der Workflow `.github/workflows/pages.yml` lädt sie bei jedem Merge und stündlich (Belegungskalender)
+per SFTP hoch (Secrets `IONOS_SFTP_HOST`, `IONOS_SFTP_USER`, `IONOS_SFTP_PASSWORD`).
+`scripts/`, `.github/` und `*.md` werden nicht hochgeladen. Die alte Adresse
+macperschi.github.io/gaestehaus-perschall leitet auf die Domain weiter.
+
+`.htaccess` erzwingt https ohne www und bindet `404.html` als Fehlerseite ein;
+deren Pfade beginnen mit `/`.
 
 ## Datenschutztext vor Freigabe prüfen
 

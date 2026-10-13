@@ -1,0 +1,12 @@
+# IONOS-Webspace (Apache): Fehlerseite und einheitliche Adresse
+ErrorDocument 404 /404.html
+
+RewriteEngine On
+# Immer https und ohne www
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://gaestehaus-perschall.com%{REQUEST_URI} [L,R=301]
+
+# Interne Projektdateien nie ausliefern
+RewriteRule ^(scripts|\.github)(/|$) - [F,L]
+RewriteRule \.md$ - [F,L]
