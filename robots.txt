@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://macperschi.github.io/gaestehaus-perschall/sitemap.xml
+Sitemap: https://gaestehaus-perschall.com/sitemap.xml
