@@ -98,3 +98,12 @@ Einmalige Schritte für Sven, damit Google die Seite kennt und Probleme meldet:
 Optional: In den Bing Webmaster Tools lässt sich die Search-Console-Property
 importieren. Mehr Besucher bringt meist das Google-Unternehmensprofil (Eintrag
 in Google Maps); dort Webseite, Telefonnummer und aktuelle Fotos prüfen.
+
+## Belegungskalender
+
+Führende Quelle ist der Belegungskalender von Hermes (alle gebuchten Aufenthalte, nur
+„Belegt“). Hermes überträgt ihn alle 15 Minuten bei Änderung in den Branch
+`kalender-daten` (Deploy Key „Hermes Belegungskalender“). Der stündliche Deploy erzeugt:
+
+- `kalender/hermes.ics` – nur Hermes; **diese Adresse importiert ferienhausmiete.de**
+- `kalender/belegung.ics` – Hermes plus (falls abrufbar) ferienhausmiete.de, für den Kalender auf der Website

@@ -27,33 +27,50 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Belegungskalender übernehmen
-        # Quelle: belegung.ics im Branch kalender-daten (Hermes), sonst der öffentliche
-        # Kalender von ferienhausmiete.de. Veröffentlicht werden ausschließlich
-        # Zeiträume (DTSTART/DTEND), keine Namen oder sonstigen Angaben.
+        # Quellen: belegung.ics im Branch kalender-daten (Hermes, führend) und der
+        # öffentliche Kalender von ferienhausmiete.de. Veröffentlicht werden
+        # ausschließlich Zeiträume (DTSTART/DTEND), keine Namen oder sonstigen Angaben.
+        #   kalender/hermes.ics   – nur Hermes (Import-Adresse für ferienhausmiete.de)
+        #   kalender/belegung.ics – Hermes + ferienhausmiete.de (Kalender auf der Website)
         run: |
-          if git fetch --depth=1 origin kalender-daten 2>/dev/null && git show FETCH_HEAD:belegung.ics > /tmp/belegung-roh.ics 2>/dev/null; then
-            echo "Quelle: Hermes (Branch kalender-daten)"
-          elif curl -fsS --max-time 30 -o /tmp/belegung-roh.ics https://www.ferienhausmiete.de/41336.ics; then
-            echo "Quelle: ferienhausmiete.de"
+          if git fetch --depth=1 origin kalender-daten 2>/dev/null && git show FETCH_HEAD:belegung.ics > /tmp/hermes-roh.ics 2>/dev/null; then
+            echo "Quelle Hermes: Branch kalender-daten"
           else
-            echo "Keine Kalenderquelle erreichbar – Kalender bleibt leer."
-            exit 0
+            echo "Quelle Hermes nicht verfügbar"; : > /tmp/hermes-roh.ics
+          fi
+          if curl -fsS --max-time 30 -o /tmp/fhm-roh.ics https://www.ferienhausmiete.de/41336.ics; then
+            echo "Quelle ferienhausmiete.de: abgerufen"
+          else
+            echo "Quelle ferienhausmiete.de nicht erreichbar"; : > /tmp/fhm-roh.ics
           fi
           mkdir -p kalender
           python3 - <<'PY'
           import re
-          raw = open("/tmp/belegung-roh.ics", encoding="utf-8").read()
-          raw = re.sub(r"\r?\n[ \t]", "", raw)
-          lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Gaestehaus Perschall//Belegung//DE"]
-          for event in re.findall(r"BEGIN:VEVENT(.*?)END:VEVENT", raw, re.S):
-              start = re.search(r"^DTSTART[^:\r\n]*:(\d{8})", event, re.M)
-              end = re.search(r"^DTEND[^:\r\n]*:(\d{8})", event, re.M)
-              if start and end:
-                  lines += ["BEGIN:VEVENT", f"DTSTART;VALUE=DATE:{start.group(1)}",
-                            f"DTEND;VALUE=DATE:{end.group(1)}", "SUMMARY:Belegt", "END:VEVENT"]
-          lines.append("END:VCALENDAR")
-          open("kalender/belegung.ics", "w", encoding="utf-8", newline="\r\n").write("\n".join(lines) + "\n")
-          print(f"{(len(lines) - 4) // 5} Belegungszeiträume übernommen")
+          def zeitraeume(pfad):
+              raw = open(pfad, encoding="utf-8", errors="ignore").read()
+              raw = re.sub(r"\r?\n[ \t]", "", raw)
+              out = set()
+              for event in re.findall(r"BEGIN:VEVENT(.*?)END:VEVENT", raw, re.S):
+                  start = re.search(r"^DTSTART[^:\r\n]*:(\d{8})", event, re.M)
+                  end = re.search(r"^DTEND[^:\r\n]*:(\d{8})", event, re.M)
+                  if start and end:
+                      out.add((start.group(1), end.group(1)))
+              return out
+          def schreiben(pfad, perioden, name):
+              lines = ["BEGIN:VCALENDAR", "VERSION:2.0", f"PRODID:-//Gaestehaus Perschall//{name}//DE",
+                       "X-WR-CALNAME:Gästehaus Perschall – Belegung"]
+              for i, (s, e) in enumerate(sorted(perioden)):
+                  lines += ["BEGIN:VEVENT", f"UID:{s}-{e}@gaestehaus-perschall.com",
+                            "DTSTAMP:20260101T000000Z", f"DTSTART;VALUE=DATE:{s}",
+                            f"DTEND;VALUE=DATE:{e}", "SUMMARY:Belegt", "END:VEVENT"]
+              lines.append("END:VCALENDAR")
+              open(pfad, "w", encoding="utf-8", newline="\r\n").write("\n".join(lines) + "\n")
+          hermes = zeitraeume("/tmp/hermes-roh.ics")
+          fhm = zeitraeume("/tmp/fhm-roh.ics")
+          if hermes:
+              schreiben("kalender/hermes.ics", hermes, "Hermes")
+          schreiben("kalender/belegung.ics", hermes | fhm, "Belegung")
+          print(f"Hermes: {len(hermes)}, ferienhausmiete.de: {len(fhm)}, Website gesamt: {len(hermes | fhm)}")
           PY
       - name: Auf IONOS-Webspace hochladen (SFTP)
         # Zugangsdaten nur als GitHub-Secrets (Settings → Secrets and variables → Actions).
