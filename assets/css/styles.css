@@ -237,12 +237,14 @@ a:hover {
   border: 2px solid transparent;
 }
 .button-primary {
-  background: var(--gold);
+  background: linear-gradient(135deg, #f3d27a 0%, #d8a942 30%, #f6dc8a 52%, #c08a1e 78%, #e9c25a 100%);
+  border: 1px solid #936205;
   color: #1d180d;
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.85), inset -1px -2px 3px rgba(105, 69, 0, 0.2), 0 2px 5px rgba(105, 69, 0, 0.18);
 }
 .button-primary:hover {
   color: #1d180d;
-  filter: brightness(0.96);
+  background: linear-gradient(135deg, #f8dd8f 0%, #e0b34d 30%, #fbe39b 52%, #c99328 78%, #f0cb66 100%);
 }
 .button-ghost {
   color: white;
