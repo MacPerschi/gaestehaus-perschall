@@ -841,7 +841,7 @@ address {
 
 .landwehr-gallery {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   margin-top: 2rem;
 }
@@ -849,7 +849,7 @@ address {
 .landwehr-gallery img {
   display: block;
   width: 100%;
-  height: 320px;
+  height: 260px;
   object-fit: cover;
   border-radius: 18px;
 }
