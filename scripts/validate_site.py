@@ -234,7 +234,9 @@ def main() -> None:
     if sitemap_urls != [base_url.rstrip("/") + "/sitemap.xml"]:
         fail(f"robots.txt Sitemap does not match canonical URL: {sitemap_urls}")
 
-    pages = {page.name: page.read_text(encoding="utf-8") for page in sorted(ROOT.glob("*.html"))}
+    # Google-Search-Console-Bestätigungsdateien (google<hex>.html) sind keine Seiten.
+    pages = {page.name: page.read_text(encoding="utf-8") for page in sorted(ROOT.glob("*.html"))
+             if not re.fullmatch(r"google[0-9a-f]+\.html", page.name)}
     check_all_pages(pages)
     check_images(pages)
 
