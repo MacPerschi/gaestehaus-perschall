@@ -66,6 +66,9 @@ macperschi.github.io/gaestehaus-perschall leitet auf die Domain weiter.
 `.htaccess` erzwingt https ohne www und bindet `404.html` als Fehlerseite ein;
 deren Pfade beginnen mit `/`.
 
+`google4af9edbf7ec3275c.html` ist die Bestätigungsdatei der Google Search Console
+und muss dauerhaft im Hauptverzeichnis bleiben (sonst geht der Zugang verloren).
+
 ## Datenschutztext vor Freigabe prüfen
 
 Der Text beschreibt die technische Einbindung, ist aber noch keine abschließend
