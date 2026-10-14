@@ -429,12 +429,13 @@ summary {
 .contact-card {
   display: grid;
   gap: 1rem;
-  background: var(--green);
+  background: var(--green-shimmer);
+  border: var(--green-shimmer-border);
   color: white;
   border-radius: var(--radius);
   padding: 2rem;
   align-content: center;
-  box-shadow: var(--shadow);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.24), var(--shadow);
 }
 .contact-card a {
   overflow-wrap: anywhere;
