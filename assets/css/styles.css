@@ -187,7 +187,13 @@ a:hover {
 }
 .hero-content {
   position: relative;
-  padding-top: 4rem;
+  /* Platz unter der festen Kopfzeile, damit die oberste Zeile nie verdeckt wird */
+  padding-top: 6.5rem;
+  /* Knöpfe sollen nie auf dem unteren Bildrand aufliegen */
+  padding-bottom: 2rem;
+}
+.eyebrow {
+  line-height: 1.5;
 }
 .eyebrow,
 .section-kicker {
