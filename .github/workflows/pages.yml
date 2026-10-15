@@ -72,6 +72,15 @@ jobs:
           schreiben("kalender/belegung.ics", hermes | fhm, "Belegung")
           print(f"Hermes: {len(hermes)}, ferienhausmiete.de: {len(fhm)}, Website gesamt: {len(hermes | fhm)}")
           PY
+      - name: Versionsstempel für CSS und JavaScript
+        # Neue Kennung bei jedem Stand, damit Browser geänderte Dateien sofort neu laden.
+        run: |
+          v="${GITHUB_SHA::8}"
+          for f in *.html; do
+            sed -i -e "s#assets/css/styles.css\"#assets/css/styles.css?v=$v\"#g" \
+                   -e "s#assets/js/main.js\"#assets/js/main.js?v=$v\"#g" "$f"
+          done
+          grep -h -o 'styles.css?v=[0-9a-f]*' index.html | head -1
       - name: Auf IONOS-Webspace hochladen (SFTP)
         # Zugangsdaten nur als GitHub-Secrets (Settings → Secrets and variables → Actions).
         # Ohne Secrets bricht der Lauf hier ab, die GitHub-Pages-Seite bleibt dann unverändert.
