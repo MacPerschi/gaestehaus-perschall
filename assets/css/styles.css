@@ -993,6 +993,11 @@ address {
   hyphens: auto;
   overflow-wrap: anywhere;
 }
+/* Überschriften, deren Wörter nicht getrennt werden sollen (z. B. „Gästehaus“) */
+.section h2.no-hyphens {
+  hyphens: manual;
+  overflow-wrap: normal;
+}
 
 .map-placeholder {
   padding: 1.25rem;
