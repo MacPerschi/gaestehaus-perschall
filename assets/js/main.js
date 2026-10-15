@@ -110,6 +110,50 @@ if (dialog) {
   dialog.addEventListener("close", () => opener?.focus());
 }
 
+/* === Belegungsdaten (gemeinsam für Kalender und Preisrechner) === */
+function parseIcsDate(value) {
+  if (!/^\d{8}$/.test(value)) return null;
+
+  const year = Number(value.slice(0, 4));
+  const month = Number(value.slice(4, 6)) - 1;
+  const day = Number(value.slice(6, 8));
+
+  return new Date(year, month, day);
+}
+
+function parseOccupancy(ics) {
+  const ranges = [];
+  // Gefaltete Zeilen (RFC 5545) zusammenführen.
+  const unfolded = ics.replace(/\r?\n[ \t]/g, "");
+  const events = unfolded.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g) || [];
+
+  for (const event of events) {
+    // Erkennt VALUE=DATE, TZID=… und UTC-Zeiten (…Z); die ersten 8 Ziffern sind das Datum.
+    const startMatch = event.match(/DTSTART[^:\r\n]*:([0-9]{8})/);
+    const endMatch = event.match(/DTEND[^:\r\n]*:([0-9]{8})/);
+
+    if (!startMatch || !endMatch) continue;
+
+    const start = parseIcsDate(startMatch[1]);
+    const end = parseIcsDate(endMatch[1]);
+
+    if (start && end && end > start) {
+      ranges.push({ start, end });
+    }
+  }
+
+  return ranges;
+}
+
+const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.text();
+  })
+  .then(parseOccupancy);
+
 /* === Belegungskalender Gästehaus Perschall === */
 (() => {
   const calendar = document.querySelector("#occupancy-calendar");
@@ -143,40 +187,6 @@ if (dialog) {
     firstVisibleMonth.getMonth(),
     1,
   );
-
-  function parseIcsDate(value) {
-    if (!/^\d{8}$/.test(value)) return null;
-
-    const year = Number(value.slice(0, 4));
-    const month = Number(value.slice(4, 6)) - 1;
-    const day = Number(value.slice(6, 8));
-
-    return new Date(year, month, day);
-  }
-
-  function parseOccupancy(ics) {
-    const ranges = [];
-    // Gefaltete Zeilen (RFC 5545) zusammenführen.
-    const unfolded = ics.replace(/\r?\n[ \t]/g, "");
-    const events = unfolded.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g) || [];
-
-    for (const event of events) {
-      // Erkennt VALUE=DATE, TZID=… und UTC-Zeiten (…Z); die ersten 8 Ziffern sind das Datum.
-      const startMatch = event.match(/DTSTART[^:\r\n]*:([0-9]{8})/);
-      const endMatch = event.match(/DTEND[^:\r\n]*:([0-9]{8})/);
-
-      if (!startMatch || !endMatch) continue;
-
-      const start = parseIcsDate(startMatch[1]);
-      const end = parseIcsDate(endMatch[1]);
-
-      if (start && end && end > start) {
-        ranges.push({ start, end });
-      }
-    }
-
-    return ranges;
-  }
 
   function isOccupied(date) {
     // DTEND ist bei ganztägigen Terminen exklusiv: Der Abreisetag ist wieder frei.
@@ -299,15 +309,9 @@ if (dialog) {
     renderCalendar();
   });
 
-  fetch("kalender/belegung.ics", { cache: "no-store" })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      return response.text();
-    })
-    .then((ics) => {
-      occupiedRanges = parseOccupancy(ics);
+  occupancyRanges
+    .then((ranges) => {
+      occupiedRanges = ranges;
       renderCalendar();
     })
     .catch((error) => {
@@ -316,6 +320,149 @@ if (dialog) {
       status.textContent =
         "Der Belegungskalender kann momentan nicht geladen werden.";
     });
+})();
+
+/* === Preisrechner (rechnet wie Hermes: 50 €/Nacht bis 2 Personen, zuerst Erwachsene;
+   weitere Person ab 17 J. 20 €/Nacht, Kind bis 16 J. 10 €/Nacht, Haustier 8 €/Nacht,
+   Endreinigung 50 €, mindestens 2 Nächte, höchstens 4 Personen) === */
+(() => {
+  const form = document.querySelector("#price-calc-form");
+  if (!form) return;
+
+  const PRICE = { night: 50, adult: 20, child: 10, pet: 8, cleaning: 50 };
+  const MIN_NIGHTS = 2;
+  const MAX_PERSONS = 4;
+  const arrival = form.querySelector("#calc-arrival");
+  const departure = form.querySelector("#calc-departure");
+  const adults = form.querySelector("#calc-adults");
+  const children = form.querySelector("#calc-children");
+  const pets = form.querySelector("#calc-pets");
+  const result = document.querySelector("#calc-result");
+  const request = document.querySelector("#calc-request");
+  let ranges = null;
+
+  const euro = (value) =>
+    value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  const toDate = (value) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+    const [y, m, d] = value.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  };
+  const isoDate = (date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  const deDate = (date) =>
+    date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  arrival.min = isoDate(today);
+
+  function line(text, cls) {
+    const p = document.createElement("p");
+    if (cls) p.className = cls;
+    p.textContent = text;
+    return p;
+  }
+
+  function show(nodes, mailBody) {
+    result.replaceChildren(...nodes);
+    if (mailBody) {
+      request.href =
+        "mailto:urlaub@gaestehaus-perschall.com?subject=" +
+        encodeURIComponent("Anfrage Gästehaus Perschall") +
+        "&body=" +
+        encodeURIComponent(mailBody);
+      request.hidden = false;
+    } else {
+      request.hidden = true;
+    }
+  }
+
+  function calculate() {
+    const start = toDate(arrival.value);
+    const end = toDate(departure.value);
+    if (start) {
+      departure.min = isoDate(new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1));
+    }
+    if (!start || !end) return show([line("Bitte wählen Sie An- und Abreise.")]);
+    if (start < today) return show([line("Die Anreise liegt in der Vergangenheit.", "calc-warning")]);
+    if (end <= start) return show([line("Die Abreise muss nach der Anreise liegen.", "calc-warning")]);
+
+    const nights = Math.round((end - start) / 86400000);
+    const a = Number(adults.value);
+    const c = Number(children.value);
+    const h = Number(pets.value);
+
+    if (a + c > MAX_PERSONS) {
+      return show([line(`Unser Gästehaus bietet Platz für höchstens ${MAX_PERSONS} Personen.`, "calc-warning")]);
+    }
+    if (nights < MIN_NIGHTS) {
+      return show([line(`Wir vermieten ab ${MIN_NIGHTS} Nächten.`, "calc-warning")]);
+    }
+
+    // Der Grundpreis deckt 2 Personen ab, zuerst die Erwachsenen.
+    const extraAdults = Math.max(0, a - 2);
+    const extraChildren = Math.max(0, c - Math.max(0, 2 - a));
+    const items = [[`Übernachtung (${plural(nights, "Nacht", "Nächte")})`, nights * PRICE.night]];
+    if (extraAdults) {
+      items.push([`${plural(extraAdults, "weitere Person", "weitere Personen")} ab 17 J.`, extraAdults * nights * PRICE.adult]);
+    }
+    if (extraChildren) {
+      items.push([`${plural(extraChildren, "Kind", "Kinder")} bis 16 J.`, extraChildren * nights * PRICE.child]);
+    }
+    if (h) items.push([plural(h, "Haustier", "Haustiere"), h * nights * PRICE.pet]);
+    items.push(["Endreinigung", PRICE.cleaning]);
+    const total = items.reduce((sum, [, value]) => sum + value, 0);
+
+    const list = document.createElement("dl");
+    list.className = "calc-items";
+    for (const [label, value] of items) {
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = euro(value);
+      list.append(dt, dd);
+    }
+
+    let availability;
+    let occupied = false;
+    if (ranges === null) {
+      availability = line("Die Verfügbarkeit kann gerade nicht geprüft werden.", "calc-info");
+    } else if (ranges.some((r) => r.start < end && r.end > start)) {
+      occupied = true;
+      availability = line(
+        "In diesem Zeitraum ist unser Gästehaus leider belegt. Bitte wählen Sie einen anderen Zeitraum.",
+        "calc-warning",
+      );
+    } else {
+      availability = line("Laut Belegungskalender ist dieser Zeitraum frei.", "calc-ok");
+    }
+
+    const summary = line(
+      `${deDate(start)} bis ${deDate(end)} · ${plural(a, "Erwachsene/r", "Erwachsene")}` +
+        (c ? ` · ${plural(c, "Kind", "Kinder")}` : "") +
+        (h ? ` · ${plural(h, "Haustier", "Haustiere")}` : ""),
+      "calc-summary",
+    );
+
+    const body =
+      `Anreise: ${deDate(start)}\nAbreise: ${deDate(end)}\nErwachsene: ${a}\n` +
+      `Kinder: ${c}${c ? " (Alter: bitte angeben)" : ""}\nHaustiere: ${h}\n` +
+      `Richtpreis laut Preisrechner: ${euro(total)}\n\nNachricht: `;
+    show([summary, list, line(`Richtpreis gesamt: ${euro(total)}`, "calc-total"), availability], occupied ? null : body);
+  }
+
+  form.addEventListener("input", calculate);
+  form.addEventListener("change", calculate);
+  occupancyRanges
+    .then((loaded) => {
+      ranges = loaded;
+    })
+    .catch(() => {
+      ranges = null;
+    })
+    .finally(calculate);
 })();
 
 /* OpenStreetMap erst nach Freigabe laden */
