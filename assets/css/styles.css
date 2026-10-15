@@ -187,7 +187,12 @@ a:hover {
 }
 .hero-content {
   position: relative;
-  padding-top: 4rem;
+  /* Platz unter der festen Kopfzeile, damit die oberste Zeile nie verdeckt wird */
+  padding-top: 6.5rem;
+  padding-bottom: 3.5rem;
+}
+.eyebrow {
+  line-height: 1.5;
 }
 .eyebrow,
 .section-kicker {
