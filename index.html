@@ -261,11 +261,33 @@
             <tr><th scope="col">Belegung</th><th scope="col">1. Nacht</th><th scope="col">Jede weitere Nacht</th></tr>
           </thead>
           <tbody>
-            <tr><th scope="row">Bis 2 Personen</th><td>100,- €</td><td>50,- €</td></tr>
+            <tr><th scope="row">Bis 2 Personen</th><td>100,- €<br><small>inkl. 50 € Endreinigung</small></td><td>50,- €</td></tr>
             <tr><th scope="row">Aufbettung / weitere Person<br><small>Kinder bis 16 Jahre: 10 Euro</small></th><td>20,- €</td><td>20,- €</td></tr>
             <tr><th scope="row">Haustiere</th><td colspan="2">8,- € pro Haustier und Nacht</td></tr>
           </tbody>
         </table>
+      </div>
+      <div class="price-calc" aria-labelledby="calc-title">
+        <h3 id="calc-title">Preisrechner</h3>
+        <p>Berechnen Sie hier den Richtpreis für Ihren Aufenthalt.</p>
+        <form class="calc-form" id="price-calc-form" novalidate>
+          <label for="calc-arrival">Anreise<input type="date" id="calc-arrival" name="anreise"></label>
+          <label for="calc-departure">Abreise<input type="date" id="calc-departure" name="abreise"></label>
+          <label for="calc-adults">Erwachsene <small>(ab 17 J.)</small>
+            <select id="calc-adults" name="erwachsene"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
+          </label>
+          <label for="calc-children">Kinder <small>(bis 16 J.)</small>
+            <select id="calc-children" name="kinder"><option selected>0</option><option>1</option><option>2</option><option>3</option></select>
+          </label>
+          <label for="calc-pets">Haustiere
+            <select id="calc-pets" name="haustiere"><option selected>0</option><option>1</option><option>2</option></select>
+          </label>
+        </form>
+        <div class="calc-result" id="calc-result" aria-live="polite">
+          <p>Bitte wählen Sie An- und Abreise.</p>
+        </div>
+        <p class="calc-actions"><a class="button button-primary calc-request" id="calc-request" href="mailto:urlaub@gaestehaus-perschall.com?subject=Anfrage%20G%C3%A4stehaus%20Perschall&amp;body=Anreise%3A%20%0AAbreise%3A%20%0AErwachsene%3A%20%0AKinder%20%28Alter%29%3A%20%0AHund%3A%20ja%20%2F%20nein%0A%0ANachricht%3A%20%0A" hidden>Mit diesen Angaben anfragen</a></p>
+        <p class="calc-note"><small>Richtpreis inkl. MwSt., Nebenkosten, Bettwäsche und Handtüchern. Verbindlich ist unser persönliches Angebot.</small></p>
       </div>
       <p><a class="button button-primary" href="mailto:urlaub@gaestehaus-perschall.com?subject=Anfrage%20G%C3%A4stehaus%20Perschall&amp;body=Anreise%3A%20%0AAbreise%3A%20%0AErwachsene%3A%20%0AKinder%20%28Alter%29%3A%20%0AHund%3A%20ja%20%2F%20nein%0A%0ANachricht%3A%20%0A">Jetzt unverbindlich anfragen</a></p>
       <details class="house-rules">
