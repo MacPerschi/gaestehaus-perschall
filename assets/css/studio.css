@@ -241,3 +241,42 @@ html[data-theme=dark] .calc-form [aria-invalid=true] { border-color: #ffc3b5; }
 
 /* Keep the SVG seal centered while WebGL is deferred or reduced motion is active. */
 #house-scene:not([data-rendered]) { display: none; }
+
+/* Calendar days and legend share the same saturated metallic finishes. */
+.calendar-weekdays span { color: var(--text); }
+.calendar-widget {
+  --calendar-free-metal: linear-gradient(135deg, #e6f2dd 0%, #91b887 30%, #d9eacb 48%, #edf6e4 52%, #729b68 76%, #a9c99e 100%);
+  --calendar-occupied-metal: linear-gradient(135deg, #fbd0c8 0%, #d16a60 30%, #f4b0a6 48%, #f9c6bc 52%, #cc645a 76%, #e68b7e 100%);
+  --calendar-today-metal: linear-gradient(135deg, #fff6bd 0%, #d5a126 30%, #fff0a0 48%, #fff6c7 52%, #a96f08 76%, #ebc855 100%);
+}
+.calendar-day, .calendar-key-free {
+  background: var(--calendar-free-metal);
+  border-color: #587b4d;
+  color: #162b17;
+}
+.calendar-day {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 1px 1px #ffffffb3, inset 0 -1px 2px #294e2533, 0 1px 2px #152d181a;
+}
+.calendar-day-occupied, .calendar-key-occupied {
+  background: var(--calendar-occupied-metal);
+  border-color: #a54339;
+  color: #30100b;
+}
+.calendar-day-today:not(.calendar-day-occupied):not(.calendar-day-unknown), .calendar-key-today {
+  background: var(--calendar-today-metal);
+  border-color: #936205;
+  color: #140d00;
+}
+.calendar-day-today { outline: 2px solid var(--gold-text); outline-offset: 2px; }
+.calendar-key-free, .calendar-key-occupied, .calendar-key-today {
+  box-shadow: inset 0 1px 1px #ffffffb3, inset 0 -1px 1px #00000026;
+}
+.calendar-day-unknown {
+  background: var(--paper);
+  color: var(--text);
+  border-color: var(--line);
+  box-shadow: none;
+}
+.calendar-day-empty { background: transparent; border-color: transparent; box-shadow: none; }
