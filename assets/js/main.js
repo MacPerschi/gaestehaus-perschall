@@ -82,12 +82,17 @@ if (dialog) {
       button.querySelector("img")?.alt || "Galeriebild Gästehaus Perschall";
     dialogStatus.textContent = `Bild ${imageIndex + 1} von ${galleryButtons.length}`;
   }
+  function openGallery(index, trigger) {
+    opener = trigger;
+    showImage(index);
+    dialog.showModal();
+  }
   galleryButtons.forEach((button, index) => {
-    button.addEventListener("click", () => {
-      opener = button;
-      showImage(index);
-      dialog.showModal();
-    });
+    button.addEventListener("click", () => openGallery(index, button));
+  });
+  document.querySelector(".room-main")?.addEventListener("click", (event) => {
+    const index = galleryButtons.findIndex(button => button.classList.contains("is-selected"));
+    openGallery(Math.max(0, index), event.currentTarget);
   });
   dialog
     .querySelector(".dialog-prev")
@@ -111,48 +116,29 @@ if (dialog) {
 }
 
 /* === Belegungsdaten (gemeinsam für Kalender und Preisrechner) === */
-function parseIcsDate(value) {
-  if (!/^\d{8}$/.test(value)) return null;
-
-  const year = Number(value.slice(0, 4));
-  const month = Number(value.slice(4, 6)) - 1;
-  const day = Number(value.slice(6, 8));
-
-  return new Date(year, month, day);
-}
-
-function parseOccupancy(ics) {
-  const ranges = [];
-  // Gefaltete Zeilen (RFC 5545) zusammenführen.
-  const unfolded = ics.replace(/\r?\n[ \t]/g, "");
-  const events = unfolded.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g) || [];
-
-  for (const event of events) {
-    // Erkennt VALUE=DATE, TZID=… und UTC-Zeiten (…Z); die ersten 8 Ziffern sind das Datum.
-    const startMatch = event.match(/DTSTART[^:\r\n]*:([0-9]{8})/);
-    const endMatch = event.match(/DTEND[^:\r\n]*:([0-9]{8})/);
-
-    if (!startMatch || !endMatch) continue;
-
-    const start = parseIcsDate(startMatch[1]);
-    const end = parseIcsDate(endMatch[1]);
-
-    if (start && end && end > start) {
-      ranges.push({ start, end });
-    }
+const occupancyRules = window.PerschallOccupancy;
+let occupancyState = { status: "loading", ranges: null };
+let occupancyLoading = false;
+async function loadOccupancy() {
+  if (occupancyLoading) return;
+  occupancyLoading = true;
+  occupancyState = { status: "loading", ranges: null };
+  window.dispatchEvent(new Event("occupancychange"));
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch("kalender/belegung.ics", { cache: "no-store", signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const ranges = occupancyRules.parse(await response.text(), { dateEnd: document.querySelector(".calendar-widget")?.dataset.calendarEnd || "exclusive" });
+    occupancyState = { status: "ready", ranges };
+  } catch {
+    occupancyState = { status: "error", ranges: null };
+  } finally {
+    clearTimeout(timeout);
+    occupancyLoading = false;
+    window.dispatchEvent(new Event("occupancychange"));
   }
-
-  return ranges;
 }
-
-const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    return response.text();
-  })
-  .then(parseOccupancy);
 
 /* === Belegungskalender Gästehaus Perschall === */
 (() => {
@@ -163,37 +149,15 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
   const prevButton = document.querySelector(".calendar-prev");
   const nextButton = document.querySelector(".calendar-next");
 
-  const monthNames = [
-    "Januar",
-    "Februar",
-    "März",
-    "April",
-    "Mai",
-    "Juni",
-    "Juli",
-    "August",
-    "September",
-    "Oktober",
-    "November",
-    "Dezember",
-  ];
-
-  const weekdayNames = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-
-  let occupiedRanges = [];
+  const retryButton = document.querySelector(".calendar-retry");
+  const monthFormat = new Intl.DateTimeFormat("de-DE", { month: "long", year: "numeric" });
+  const dayFormat = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long", year: "numeric" });
+  const weekdayFormat = new Intl.DateTimeFormat("de-DE", { weekday: "short" });
+  const weekdayNames = Array.from({ length: 7 }, (_, i) => weekdayFormat.format(new Date(2026, 0, 5 + i)));
+  const smallScreen = matchMedia("(max-width: 760px)");
+  const mediumScreen = matchMedia("(max-width: 950px)");
   let firstVisibleMonth = new Date();
-  firstVisibleMonth = new Date(
-    firstVisibleMonth.getFullYear(),
-    firstVisibleMonth.getMonth(),
-    1,
-  );
-
-  function isOccupied(date) {
-    // DTEND ist bei ganztägigen Terminen exklusiv: Der Abreisetag ist wieder frei.
-    return occupiedRanges.some(
-      (range) => date >= range.start && date < range.end,
-    );
-  }
+  firstVisibleMonth = new Date(firstVisibleMonth.getFullYear(), firstVisibleMonth.getMonth(), 1);
 
   function isToday(date) {
     const today = new Date();
@@ -210,7 +174,7 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
     monthElement.className = "calendar-month";
 
     const heading = document.createElement("h3");
-    heading.textContent = `${monthNames[month]} ${year}`;
+    heading.textContent = monthFormat.format(new Date(year, month, 1));
     monthElement.appendChild(heading);
 
     const weekdays = document.createElement("div");
@@ -241,11 +205,13 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
       const dayElement = document.createElement("span");
-      const occupied = isOccupied(date);
+      const known = occupancyState.status === "ready";
+      const occupied = known && occupancyRules.isOccupied(occupancyState.ranges, date);
 
       dayElement.className = "calendar-day";
       dayElement.textContent = String(day);
 
+      if (!known) dayElement.classList.add("calendar-day-unknown");
       if (occupied) {
         dayElement.classList.add("calendar-day-occupied");
       }
@@ -257,7 +223,7 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
       dayElement.setAttribute("role", "img");
       dayElement.setAttribute(
         "aria-label",
-        `${day}. ${monthNames[month]} ${year}: ${occupied ? "belegt" : "frei"}`,
+        `${dayFormat.format(date)}: ${!known ? "Verfügbarkeit unbekannt" : occupied ? "belegt" : "frei"}`,
       );
 
       days.appendChild(dayElement);
@@ -270,7 +236,10 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
   function renderCalendar() {
     calendar.replaceChildren();
 
-    for (let offset = 0; offset < 3; offset++) {
+    const count = smallScreen.matches ? 1 : mediumScreen.matches ? 2 : 3;
+    calendar.setAttribute("aria-busy", String(occupancyState.status === "loading"));
+    retryButton.hidden = occupancyState.status !== "error";
+    for (let offset = 0; offset < count; offset++) {
       const date = new Date(
         firstVisibleMonth.getFullYear(),
         firstVisibleMonth.getMonth() + offset,
@@ -282,13 +251,16 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
 
     const lastVisibleMonth = new Date(
       firstVisibleMonth.getFullYear(),
-      firstVisibleMonth.getMonth() + 2,
+      firstVisibleMonth.getMonth() + count - 1,
       1,
     );
 
-    status.textContent =
-      `${monthNames[firstVisibleMonth.getMonth()]} ${firstVisibleMonth.getFullYear()} – ` +
-      `${monthNames[lastVisibleMonth.getMonth()]} ${lastVisibleMonth.getFullYear()}`;
+    const period = count === 1 ? monthFormat.format(firstVisibleMonth) : monthFormat.format(firstVisibleMonth) + " – " + monthFormat.format(lastVisibleMonth);
+    status.textContent = period + (occupancyState.status === "loading"
+      ? ": Belegungskalender wird geladen …"
+      : occupancyState.status === "error"
+        ? ": Verfügbarkeit unbekannt. Bitte erneut laden oder direkt anfragen."
+        : "");
   }
 
   prevButton?.addEventListener("click", () => {
@@ -309,17 +281,11 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
     renderCalendar();
   });
 
-  occupancyRanges
-    .then((ranges) => {
-      occupiedRanges = ranges;
-      renderCalendar();
-    })
-    .catch((error) => {
-      console.error("Belegungskalender konnte nicht geladen werden:", error);
-      calendar.replaceChildren();
-      status.textContent =
-        "Der Belegungskalender kann momentan nicht geladen werden.";
-    });
+  retryButton.addEventListener("click", loadOccupancy);
+  window.addEventListener("occupancychange", renderCalendar);
+  smallScreen.addEventListener("change", renderCalendar);
+  mediumScreen.addEventListener("change", renderCalendar);
+  renderCalendar();
 })();
 
 /* === Preisrechner (rechnet wie Hermes: 50 €/Nacht bis 2 Personen, zuerst Erwachsene;
@@ -340,6 +306,18 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
   const result = document.querySelector("#calc-result");
   const request = document.querySelector("#calc-request");
   let ranges = null;
+  const fields = [arrival, departure, adults, children, pets];
+  function clearErrors() {
+    fields.forEach(field => {
+      field.removeAttribute("aria-invalid");
+      document.getElementById(field.id + "-error").textContent = "";
+    });
+  }
+  function invalid(field, message) {
+    field.setAttribute("aria-invalid", "true");
+    document.getElementById(field.id + "-error").textContent = message;
+    show([line(message, "calc-warning")]);
+  }
 
   const euro = (value) =>
     value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
@@ -365,6 +343,17 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
     return p;
   }
 
+  // Empty request template, shown while no dates are chosen yet.
+  const emptyRequestBody = [
+    "Anreise: ",
+    "Abreise: ",
+    "Erwachsene: ",
+    "Kinder (Alter): ",
+    "Hund: ja / nein",
+    "",
+    "Nachricht: ",
+  ].join("\n");
+
   function show(nodes, mailBody) {
     result.replaceChildren(...nodes);
     if (mailBody) {
@@ -380,14 +369,17 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
   }
 
   function calculate() {
+    clearErrors();
     const start = toDate(arrival.value);
     const end = toDate(departure.value);
     if (start) {
-      departure.min = isoDate(new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1));
+      departure.min = isoDate(new Date(start.getFullYear(), start.getMonth(), start.getDate() + MIN_NIGHTS));
+    } else {
+      departure.removeAttribute("min");
     }
-    if (!start || !end) return show([line("Bitte wählen Sie An- und Abreise.")]);
-    if (start < today) return show([line("Die Anreise liegt in der Vergangenheit.", "calc-warning")]);
-    if (end <= start) return show([line("Die Abreise muss nach der Anreise liegen.", "calc-warning")]);
+    if (!start || !end) return show([line("Bitte wählen Sie An- und Abreise.")], emptyRequestBody);
+    if (start < today) return invalid(arrival, "Bitte wählen Sie eine Anreise ab heute.");
+    if (end <= start) return invalid(departure, "Bitte wählen Sie eine Abreise nach der Anreise.");
 
     const nights = Math.round((end - start) / 86400000);
     const a = Number(adults.value);
@@ -395,10 +387,11 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
     const h = Number(pets.value);
 
     if (a + c > MAX_PERSONS) {
-      return show([line(`Unser Gästehaus bietet Platz für höchstens ${MAX_PERSONS} Personen.`, "calc-warning")]);
+      invalid(adults, `Bitte wählen Sie insgesamt höchstens ${MAX_PERSONS} Personen.`);
+      return invalid(children, `Bitte wählen Sie insgesamt höchstens ${MAX_PERSONS} Personen.`);
     }
     if (nights < MIN_NIGHTS) {
-      return show([line(`Wir vermieten ab ${MIN_NIGHTS} Nächten.`, "calc-warning")]);
+      return invalid(departure, `Bitte wählen Sie mindestens ${MIN_NIGHTS} Nächte.`);
     }
 
     // Der Grundpreis deckt 2 Personen ab, zuerst die Erwachsenen.
@@ -428,8 +421,8 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
     let availability;
     let occupied = false;
     if (ranges === null) {
-      availability = line("Die Verfügbarkeit kann gerade nicht geprüft werden.", "calc-info");
-    } else if (ranges.some((r) => r.start < end && r.end > start)) {
+      availability = line(occupancyState.status === "loading" ? "Die Verfügbarkeit wird geprüft …" : "Die Verfügbarkeit ist unbekannt. Bitte fragen Sie den Zeitraum direkt bei uns an.", "calc-info");
+    } else if (ranges.some((r) => occupancyRules.overlaps(r, {start, end}))) {
       occupied = true;
       availability = line(
         "In diesem Zeitraum ist unser Gästehaus leider belegt. Bitte wählen Sie einen anderen Zeitraum.",
@@ -455,14 +448,16 @@ const occupancyRanges = fetch("kalender/belegung.ics", { cache: "no-store" })
 
   form.addEventListener("input", calculate);
   form.addEventListener("change", calculate);
-  occupancyRanges
-    .then((loaded) => {
-      ranges = loaded;
-    })
-    .catch(() => {
-      ranges = null;
-    })
-    .finally(calculate);
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    calculate();
+    form.querySelector('[aria-invalid="true"]')?.focus();
+  });
+  window.addEventListener("occupancychange", () => {
+    ranges = occupancyState.ranges;
+    calculate();
+  });
+  calculate();
 })();
 
 /* OpenStreetMap erst nach Freigabe laden */
@@ -493,3 +488,6 @@ if (mapPlaceholder) {
     loadMap.focus();
   });
 }
+
+
+if (document.querySelector("#occupancy-calendar, #price-calc-form")) loadOccupancy();
